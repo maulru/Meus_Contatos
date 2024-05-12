@@ -2,9 +2,9 @@
 {
     public class DDD
     {
-        public DDD() { }
-        public DDD(int ID) { }
+        
         public int ID { get; set; }
+        public int EstadoId { get; set; }
         public virtual Estado Estado { get; set; }
         public int CodigoDDD { get; set; }
     }
