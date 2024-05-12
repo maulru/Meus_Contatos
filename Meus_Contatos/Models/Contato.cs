@@ -12,6 +12,12 @@
 
         public string Email { get; set; }
 
+        public int UsuarioId { get; set; }
+
         public virtual Usuario Usuario { get; set; }
+
+        public virtual Telefone Telefone { get; set; }
+
+        public virtual ICollection<Telefone> Telefones { get; set; }
     }
 }
