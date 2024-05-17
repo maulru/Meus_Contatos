@@ -1,10 +1,5 @@
-using Meus_Contatos.Data;
-using Microsoft.AspNetCore.Mvc.Filters;
+using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,29 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-var connectionString = builder.Configuration.GetConnectionString("ContatoConnection");
+var configuration = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .Build();
 
-builder.Services.AddDbContext<ContatoContext>(opts =>
-    opts.UseLazyLoadingProxies().UseSqlServer(connectionString));
-
-builder.Services.AddAuthentication(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.DefaultAuthenticateScheme =
-    JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey =
-        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["SymmetricSecurityKey"])),
-        ValidateAudience = false,
-        ValidateIssuer = false,
-        ClockSkew = TimeSpan.Zero
+    options.UseSqlServer(configuration.GetConnectionString("ConnectionString"));
+}, ServiceLifetime.Scoped);
 
-    };
-}
-);
 
 var app = builder.Build();
 
