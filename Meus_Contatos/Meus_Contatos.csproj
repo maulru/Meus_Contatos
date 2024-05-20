@@ -8,10 +8,22 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="Authorization\" />
-		<Folder Include="Data\" />
-		<Folder Include="Profiles\" />
-		<Folder Include="Services\" />
+	  <Compile Remove="Authorization\**" />
+	  <Compile Remove="Data\**" />
+	  <Compile Remove="Profiles\**" />
+	  <Compile Remove="Services\**" />
+	  <Content Remove="Authorization\**" />
+	  <Content Remove="Data\**" />
+	  <Content Remove="Profiles\**" />
+	  <Content Remove="Services\**" />
+	  <EmbeddedResource Remove="Authorization\**" />
+	  <EmbeddedResource Remove="Data\**" />
+	  <EmbeddedResource Remove="Profiles\**" />
+	  <EmbeddedResource Remove="Services\**" />
+	  <None Remove="Authorization\**" />
+	  <None Remove="Data\**" />
+	  <None Remove="Profiles\**" />
+	  <None Remove="Services\**" />
 	</ItemGroup>
 
 	<ItemGroup>
