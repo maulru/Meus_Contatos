@@ -6,6 +6,5 @@
         public Estado Estado { get; set; }
         public int CodigoDDD {  get; set; }
 
-        public ICollection<Telefone> Telefones { get; set; }
     }
 }
