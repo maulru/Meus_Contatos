@@ -1,18 +1,19 @@
 ﻿using Core.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Repository
 {
     public class ApplicationDbContext : DbContext
     {
-        private readonly string _connectionString;
+        private readonly IConfiguration _connectionString;
 
         public ApplicationDbContext()
         {
 
         }
 
-        public ApplicationDbContext(string connectionString)
+        public ApplicationDbContext(IConfiguration connectionString)
         {
             _connectionString = connectionString;
         }
@@ -27,7 +28,7 @@ namespace Infrastructure.Repository
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(_connectionString);
+                optionsBuilder.UseSqlServer(_connectionString.GetConnectionString("ConnectionString"));
             }
         }
 

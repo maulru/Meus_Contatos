@@ -11,9 +11,7 @@ namespace Core.Entity
         public int ContatoId { get; set; }
         public Contato Contato { get; set; }
 
-        public int DDD { get; set; }
-
-        public DDD Ddd { get; set; }
+        public int NumeroDDD { get; set; }
 
         public string NumeroTelefone { get; set; }
     }
