@@ -10,7 +10,7 @@ namespace Infrastructure.Repository.Configurations
         {
             builder.ToTable("Contato");
             builder.HasKey(p => p.Id);
-            builder.Property(p => p.Id).HasColumnType("INT").UseIdentityColumn();
+            builder.Property(p => p.Id).HasColumnType("INT").ValueGeneratedNever().UseIdentityColumn();
             builder.Property(p => p.Email).HasColumnName("Email").HasColumnType("VARCHAR(100)").IsRequired();
         }
     }

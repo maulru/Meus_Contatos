@@ -1,4 +1,4 @@
-﻿using Core.Entity;
+using Core.Entity;
 
 namespace Core.Repository
 {

@@ -25,7 +25,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entity.Contato", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("INT");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
@@ -47,7 +46,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entity.DDD", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("INT");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
@@ -68,7 +66,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entity.Estado", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("INT");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
@@ -97,7 +94,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entity.Regiao", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("INT");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
@@ -114,7 +110,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entity.Telefone", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("INT");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
@@ -122,7 +117,10 @@ namespace Infrastructure.Migrations
                     b.Property<int>("ContatoId")
                         .HasColumnType("INT");
 
-                    b.Property<int>("NumeroDDD")
+                    b.Property<int>("DDD")
+                        .HasColumnType("INT");
+
+                    b.Property<int>("DddId")
                         .HasColumnType("INT");
 
                     b.Property<string>("NumeroTelefone")
@@ -132,6 +130,8 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ContatoId");
+
+                    b.HasIndex("DddId");
 
                     b.ToTable("Telefone", (string)null);
                 });
@@ -170,10 +170,23 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Core.Entity.DDD", "Ddd")
+                        .WithMany("Telefones")
+                        .HasForeignKey("DddId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Contato");
+
+                    b.Navigation("Ddd");
                 });
 
             modelBuilder.Entity("Core.Entity.Contato", b =>
+                {
+                    b.Navigation("Telefones");
+                });
+
+            modelBuilder.Entity("Core.Entity.DDD", b =>
                 {
                     b.Navigation("Telefones");
                 });

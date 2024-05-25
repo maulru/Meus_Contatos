@@ -10,14 +10,19 @@ namespace Infrastructure.Repository.Configurations
         {
             builder.ToTable("Telefone");
             builder.HasKey(p => p.Id);
-            builder.Property(p => p.Id).HasColumnType("INT").UseIdentityColumn();
+            builder.Property(p => p.Id).HasColumnType("INT").ValueGeneratedNever().UseIdentityColumn();
             builder.Property(p => p.ContatoId).HasColumnType("INT").IsRequired();
-            builder.Property(p => p.NumeroDDD).HasColumnType("INT").IsRequired();
+            builder.Property(p => p.DDD).HasColumnType("INT").IsRequired();
             builder.Property(p => p.NumeroTelefone).HasColumnType("VARCHAR(20)").IsRequired();
 
             builder.HasOne(p => p.Contato)
                 .WithMany(c => c.Telefones)
                 .HasPrincipalKey(c => c.Id);
+
+            builder.HasOne(p => p.Ddd)
+                .WithMany(c=> c.Telefones)
+                .HasPrincipalKey(c => c.Id);
+
         }
     }
 }
