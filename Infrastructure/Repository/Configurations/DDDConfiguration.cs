@@ -9,14 +9,16 @@ namespace Infrastructure.Repository.Configurations
         public void Configure(EntityTypeBuilder<DDD> builder)
         {
             builder.ToTable("DDD");
-            builder.HasKey(p => p.Id);
-            builder.Property(p => p.Id).HasColumnType("INT").UseIdentityColumn();
-            builder.Property(p => p.EstadoId).HasColumnType("INT").IsRequired();
-            builder.Property(p => p.CodigoDDD).HasColumnType("INT").IsRequired();
 
-            builder.HasOne(p => p.Estado)
-                .WithMany(c => c.DDDs)
-                .HasPrincipalKey(c => c.Id);
+            builder.HasKey(d => d.Id);
+            builder.Property(d => d.Id).HasColumnType("INT").UseIdentityColumn();
+            builder.Property(d => d.Codigo).HasColumnName("Codigo").HasColumnType("VARCHAR(10)").IsRequired();
+
+            // Relacionamento com Regiao
+            builder.HasOne(d => d.Regiao)
+                   .WithMany(r => r.DDDs)
+                   .HasForeignKey(d => d.RegiaoId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
 
     }

@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<Core.Entity.Contato>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -22,7 +24,7 @@
         </div>
     </div>
 
-    <table class="table table-striped " style="text-align: center;">
+    <table class="table table-striped" style="text-align: center;">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -34,74 +36,64 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <th scope="row" style="padding-top: 15px;">1</th>
-                <td style="padding-top: 12px; font-size: 20px;">
-                    Antonio Kauã Paiva Batista
-                </td>
-                <td style="padding-top: 12px; font-size: 20px;">kauabatista545@hotmail.com</td>
-                <td style="padding-top: 12px; font-size: 20px;">(11) 98928-6488</td>
-                <td style="padding-top: 12px; font-size: 20px;">São Paulo</td>
-                <td>
-                    <a href="#" class="btn btn-primary" style="padding-top: 5px;">Alterar</a>
-                    <a href="#" class="btn btn-danger">Excluir</a>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row" style="padding-top: 15px;">2</th>
-                <td style="padding-top: 12px; font-size: 20px;">
-                    Antonio Kauã Paiva Batista
-                </td>
-                <td style="padding-top: 12px; font-size: 20px;">kauabatista545@hotmail.com</td>
-                <td style="padding-top: 12px; font-size: 20px;">(11) 98928-6488</td>
-                <td style="padding-top: 12px; font-size: 20px;">São Paulo</td>
-                <td>
-                    <a href="#" class="btn btn-primary" style="padding-top: 5px;">Alterar</a>
-                    <a href="#" class="btn btn-danger">Excluir</a>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row" style="padding-top: 15px;">3</th>
-                <td style="padding-top: 12px; font-size: 20px;">
-                    Antonio Kauã Paiva Batista
-                </td>
-                <td style="padding-top: 12px; font-size: 20px;">kauabatista545@hotmail.com</td>
-                <td style="padding-top: 12px; font-size: 20px;">(11) 98928-6488</td>
-                <td style="padding-top: 12px; font-size: 20px;">São Paulo</td>
-                <td>
-                    <a href="#" class="btn btn-primary" style="padding-top: 5px;">Alterar</a>
-                    <a href="#" class="btn btn-danger">Excluir</a>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row" style="padding-top: 15px;">4</th>
-                <td style="padding-top: 12px; font-size: 20px;">
-                    Antonio Kauã Paiva Batista
-                </td>
-                <td style="padding-top: 12px; font-size: 20px;">kauabatista545@hotmail.com</td>
-                <td style="padding-top: 12px; font-size: 20px;">(11) 98928-6488</td>
-                <td style="padding-top: 12px; font-size: 20px;">São Paulo</td>
-                <td>
-                    <a href="#" class="btn btn-primary" style="padding-top: 5px;">Alterar</a>
-                    <a href="#" class="btn btn-danger">Excluir</a>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row" style="padding-top: 15px;">5</th>
-                <td style="padding-top: 12px; font-size: 20px;">
-                    Antonio Kauã Paiva Batista
-                </td>
-                <td style="padding-top: 12px; font-size: 20px;">kauabatista545@hotmail.com</td>
-                <td style="padding-top: 12px; font-size: 20px;">(11) 98928-6488</td>
-                <td style="padding-top: 12px; font-size: 20px;">São Paulo</td>
-                <td>
-                    <a href="#" class="btn btn-primary" style="padding-top: 5px;">Alterar</a>
-                    <a href="#" class="btn btn-danger">Excluir</a>
-                </td>
-            </tr>
+            @if (Model != null && Model.Any())
+            {
+                int index = 1;
+                foreach (var contato in Model)
+                {
+                    var telefone = contato.Telefones.FirstOrDefault();
+                    var ddd = telefone?.DDD;
+                    var regiao = ddd?.Regiao;
+                    <tr>
+                        <th scope="row" style="padding-top: 15px;">@index</th>
+                        <td style="padding-top: 12px; font-size: 20px;">@contato.Nome</td>
+                        <td style="padding-top: 12px; font-size: 20px;">@contato.Email</td>
+                        <td style="padding-top: 12px; font-size: 20px;">@telefone?.NumeroCompleto</td>
+                        <td style="padding-top: 12px; font-size: 20px;">@regiao?.Nome</td>
+                        <td>
+                            <a href="@Url.Action("EditarContato", "Contato", new { id = contato.Id })" class="btn btn-primary" style="padding-top: 5px;">Alterar</a>
+                            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@contato.Id">Excluir</a>
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" style="padding-top: 12px; font-size: 20px;">Nenhum contato encontrado.</td>
+                </tr>
+            }
         </tbody>
     </table>
 
-    <p class="fs-3 mt-5">5 contatos.</p>
-
+    <p class="fs-3 mt-5">@Model?.Count() contatos.</p>
 </div>
+
+@Html.Partial("Components/DeleteContactModal")
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var contatoId;
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                contatoId = button.data('id');
+            });
+
+            $('#confirmDelete').click(function () {
+                $.ajax({
+                    url: '@Url.Action("ExcluirContato", "Home")',
+                    type: 'POST',
+                    data: { id: contatoId },
+                    success: function (result) {
+                        location.reload();
+                    },
+                    error: function () {
+                        alert('Ocorreu um erro ao excluir o contato.');
+                    }
+                });
+            });
+        });
+    </script>
+}

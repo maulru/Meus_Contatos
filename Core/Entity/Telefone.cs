@@ -9,10 +9,12 @@ namespace Core.Entity
     public class Telefone : EntityBase
     {
         public int ContatoId { get; set; }
-        public Contato Contato { get; set; }
-
-        public int NumeroDDD { get; set; }
-
+        public int DDDId { get; set; }
         public string NumeroTelefone { get; set; }
+
+        public string NumeroCompleto => $"({DDD.Codigo}) {NumeroTelefone}";
+
+        public Contato Contato { get; set; }
+        public DDD DDD { get; set; }
     }
 }

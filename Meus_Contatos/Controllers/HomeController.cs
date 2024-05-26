@@ -1,3 +1,4 @@
+using Core.Repository;
 using Meus_Contatos.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -6,21 +7,31 @@ namespace Meus_Contatos.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IContatoRepository _contatoRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IContatoRepository contatoRepository)
         {
-            _logger = logger;
+            _contatoRepository = contatoRepository;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var contatos = _contatoRepository.ObterTodos();
+            return View(contatos);
         }
 
-        public IActionResult Contato()
+        [HttpPost]
+        public JsonResult ExcluirContato(int id)
         {
-            return View();
+            try
+            {
+                _contatoRepository.Deletar(id);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

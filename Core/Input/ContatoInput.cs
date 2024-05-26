@@ -2,12 +2,10 @@
 {
     public class ContatoInput
     {
-        public required string Nome { get; set; }
-
-        public required string Email { get; set; }
-
-        public required int Ddd { get; set; }
-
-        public required string Telefone { get; set; }
+        public int Id { get; set; }
+        public string Nome { get; set; }
+        public string Email { get; set; }
+        public string NumeroDDD { get; set; }
+        public string NumeroTelefone { get; set; }
     }
 }

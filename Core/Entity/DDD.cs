@@ -2,9 +2,10 @@
 {
     public class DDD : EntityBase
     {
-        public int EstadoId { get; set; }
-        public Estado Estado { get; set; }
-        public int CodigoDDD {  get; set; }
-
+        public int Id { get; set; }
+        public string Codigo { get; set; }
+        public int RegiaoId { get; set; }
+        public Regiao Regiao { get; set; }
+        public ICollection<Telefone> Telefones { get; set; }
     }
 }

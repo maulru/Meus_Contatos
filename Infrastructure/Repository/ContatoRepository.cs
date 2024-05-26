@@ -10,6 +10,15 @@ namespace Infrastructure.Repository
         {
         }
 
+        public IEnumerable<Contato> ObterTodos()
+        {
+            return _context.Contato
+                .Include(c => c.Telefones)
+                    .ThenInclude(t => t.DDD)
+                        .ThenInclude(d => d.Regiao)
+                .ToList();
+        }
+
         public Contato ObterInformacoesPorId(int id)
         {
             var contato = _context.Contato
@@ -18,6 +27,14 @@ namespace Infrastructure.Repository
                 ?? throw new Exception("Contato não localizado");
 
             return contato;
+        }
+
+        public Contato ObterPorId(int id)
+        {
+            return _context.Contato
+                .Include(c => c.Telefones)
+                    .ThenInclude(t => t.DDD)
+                .FirstOrDefault(c => c.Id == id);
         }
 
         /// <summary>
