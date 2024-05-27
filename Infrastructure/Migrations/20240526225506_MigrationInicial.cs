@@ -5,7 +5,7 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class estruturainicial : Migration
+    public partial class MigrationInicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "INT", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Nome = table.Column<string>(type: "VARCHAR(100)", nullable: false),
                     Email = table.Column<string>(type: "VARCHAR(100)", nullable: false)
                 },
                 constraints: table =>
@@ -25,42 +25,36 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Regiao",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INT", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "VARCHAR(40)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Regiao", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Estado",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INT", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "VARCHAR(50)", nullable: false),
-                    RegiaoId = table.Column<int>(type: "INT", nullable: false),
-                    RegiaoId1 = table.Column<int>(type: "INT", nullable: true)
+                    Nome = table.Column<string>(type: "VARCHAR(100)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Estado", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Regiao",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INT", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nome = table.Column<string>(type: "VARCHAR(100)", nullable: false),
+                    EstadoId = table.Column<int>(type: "INT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Regiao", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Estado_Regiao_RegiaoId",
-                        column: x => x.RegiaoId,
-                        principalTable: "Regiao",
+                        name: "FK_Regiao_Estado_EstadoId",
+                        column: x => x.EstadoId,
+                        principalTable: "Estado",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Estado_Regiao_RegiaoId1",
-                        column: x => x.RegiaoId1,
-                        principalTable: "Regiao",
-                        principalColumn: "Id");
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,18 +63,18 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "INT", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EstadoId = table.Column<int>(type: "INT", nullable: false),
-                    CodigoDDD = table.Column<int>(type: "INT", nullable: false)
+                    Codigo = table.Column<string>(type: "VARCHAR(10)", nullable: false),
+                    RegiaoId = table.Column<int>(type: "INT", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DDD", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DDD_Estado_EstadoId",
-                        column: x => x.EstadoId,
-                        principalTable: "Estado",
+                        name: "FK_DDD_Regiao_RegiaoId",
+                        column: x => x.RegiaoId,
+                        principalTable: "Regiao",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -90,8 +84,7 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "INT", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ContatoId = table.Column<int>(type: "INT", nullable: false),
-                    DDD = table.Column<int>(type: "INT", nullable: false),
-                    DddId = table.Column<int>(type: "INT", nullable: false),
+                    DDDId = table.Column<int>(type: "INT", nullable: false),
                     NumeroTelefone = table.Column<string>(type: "VARCHAR(20)", nullable: false)
                 },
                 constraints: table =>
@@ -104,29 +97,22 @@ namespace Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Telefone_DDD_DddId",
-                        column: x => x.DddId,
+                        name: "FK_Telefone_DDD_DDDId",
+                        column: x => x.DDDId,
                         principalTable: "DDD",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DDD_EstadoId",
+                name: "IX_DDD_RegiaoId",
                 table: "DDD",
-                column: "EstadoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Estado_RegiaoId",
-                table: "Estado",
                 column: "RegiaoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Estado_RegiaoId1",
-                table: "Estado",
-                column: "RegiaoId1",
-                unique: true,
-                filter: "[RegiaoId1] IS NOT NULL");
+                name: "IX_Regiao_EstadoId",
+                table: "Regiao",
+                column: "EstadoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Telefone_ContatoId",
@@ -134,9 +120,9 @@ namespace Infrastructure.Migrations
                 column: "ContatoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Telefone_DddId",
+                name: "IX_Telefone_DDDId",
                 table: "Telefone",
-                column: "DddId");
+                column: "DDDId");
         }
 
         /// <inheritdoc />
@@ -152,10 +138,10 @@ namespace Infrastructure.Migrations
                 name: "DDD");
 
             migrationBuilder.DropTable(
-                name: "Estado");
+                name: "Regiao");
 
             migrationBuilder.DropTable(
-                name: "Regiao");
+                name: "Estado");
         }
     }
 }

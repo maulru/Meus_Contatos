@@ -49,5 +49,25 @@ namespace Infrastructure.Repository
             return contato;
         }
 
+
+        public IEnumerable<Contato> BuscarContatosPorDDD(string ddd)
+        {
+            return _context.Contato
+                .Include(c => c.Telefones)
+                .ThenInclude(t => t.DDD)
+                .Where(c => c.Telefones.Any(t => t.DDD.Codigo == ddd))
+                .ToList();
+        }
+
+        public IEnumerable<Contato> BuscarContatosPorRegiao(string regiao)
+        {
+            return _context.Contato
+                .Include(c => c.Telefones)
+                .ThenInclude(t => t.DDD)
+                .ThenInclude(d => d.Regiao)
+                .Where(c => c.Telefones.Any(t => t.DDD.Regiao.Nome == regiao))
+                .ToList();
+        }
+
     }
 }

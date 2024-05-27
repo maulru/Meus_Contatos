@@ -26,15 +26,6 @@ namespace Meus_Contatos.Controllers
             return View();
         }
 
-        /*   [HttpPost]
-           public JsonResult ContatosLista()
-           {
-               int quantidade = 0;
-
-               List<Contato> contatos = (List<Contato>)_contatoRepository.ObterTodos();
-
-               return Json(new { Result = "Ok", Records = contatos, TotalRecordCount = quantidade });
-           }*/
 
         [HttpPost]
         public JsonResult AdicionarContato(ContatoInput input)
@@ -145,10 +136,35 @@ namespace Meus_Contatos.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult ContatosFiltrados(string regiao, string ddd)
+        {
+            var query = _context.Contato.Include(c => c.Telefones).ThenInclude(t => t.DDD).ThenInclude(r=> r.Regiao).AsQueryable();
+
+            if (!string.IsNullOrEmpty(regiao))
+            {
+                query = query.Where(c => c.Telefones.Any(t => t.DDD.Regiao.Nome.Contains(regiao)));
+            }
+
+            if (!string.IsNullOrEmpty(ddd))
+            {
+                query = query.Where(c => c.Telefones.Any(t => t.DDD.Codigo == ddd));
+            }
+
+            var contatos = query.ToList();
+
+            return Json(new { success = true, data = contatos, totalContatos = contatos.Count });
+        }
+
 
         public IActionResult LoadUserCreatedModal() //ActionResult para exibir o ModalDialog
         {
             return PartialView("Components/UserCreatedModal");
+        }
+
+        public IActionResult LoadUserChangedModal() //ActionResult para exibir o ModalDialog
+        {
+            return PartialView("Components/UserChangedModal");
         }
 
     }
