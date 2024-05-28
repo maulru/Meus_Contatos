@@ -13,7 +13,12 @@ namespace Meus_Contatos.Controllers
         private readonly ITelefoneRepository _telefoneRepository;
         private readonly ApplicationDbContext _context;
 
-
+        /// <summary>
+        /// Injeção de dependência
+        /// </summary>
+        /// <param name="telefoneRepository"></param>
+        /// <param name="contatoRepository"></param>
+        /// <param name="context"></param>
         public ContatoController(ITelefoneRepository telefoneRepository, IContatoRepository contatoRepository, ApplicationDbContext context)
         {
             _telefoneRepository = telefoneRepository;
@@ -21,12 +26,20 @@ namespace Meus_Contatos.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Retornar View
+        /// </summary>
+        /// <returns></returns>
         public IActionResult AdicionarContato()
         {
             return View();
         }
 
-
+        /// <summary>
+        /// Método para adicionar contato
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult AdicionarContato(ContatoInput input)
         {
@@ -68,6 +81,11 @@ namespace Meus_Contatos.Controllers
             }
         }
 
+        /// <summary>
+        /// Action Result para Edição de contato
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public IActionResult EditarContato(int id)
         {
             var contato = _contatoRepository.ObterPorId(id);
@@ -89,6 +107,11 @@ namespace Meus_Contatos.Controllers
             return View(input);
         }
 
+        /// <summary>
+        /// Método para editar Contato
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult EditarContato(ContatoInput input)
         {
@@ -136,6 +159,12 @@ namespace Meus_Contatos.Controllers
             }
         }
 
+        /// <summary>
+        /// Método para retornar contatos de acordo com o filtro de Região e/ou DDD
+        /// </summary>
+        /// <param name="regiao"></param>
+        /// <param name="ddd"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult ContatosFiltrados(string regiao, string ddd)
         {
@@ -156,12 +185,19 @@ namespace Meus_Contatos.Controllers
             return Json(new { success = true, data = contatos, totalContatos = contatos.Count });
         }
 
-
+        /// <summary>
+        /// Método para carregar o modal na tela de cadastro de usuário
+        /// </summary>
+        /// <returns></returns>
         public IActionResult LoadUserCreatedModal() //ActionResult para exibir o ModalDialog
         {
             return PartialView("Components/UserCreatedModal");
         }
 
+        /// <summary>
+        /// Método para carregar o modal na tela de edição de usuário
+        /// </summary>
+        /// <returns></returns>
         public IActionResult LoadUserChangedModal() //ActionResult para exibir o ModalDialog
         {
             return PartialView("Components/UserChangedModal");

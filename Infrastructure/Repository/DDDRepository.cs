@@ -9,15 +9,5 @@ namespace Infrastructure.Repository
         public DDDRepository(ApplicationDbContext context) : base(context)
         {
         }
-
-      /*  public DDD ObterListaDDD(int id)
-        {
-            var ddd = _context.DDD
-                .Include(c => c.CodigoDDD)
-                .FirstOrDefault(c => c.Id == id)
-                ?? throw new Exception("DDD não localizado");
-
-            return ddd;
-        }*/
     }
 }

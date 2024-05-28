@@ -13,10 +13,12 @@ namespace Infrastructure.Repository
 
         }
 
-        public ApplicationDbContext(IConfiguration connectionString)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration connectionString) :base(options)
         {
             _connectionString = connectionString;
         }
+
+     
 
         public DbSet<Contato> Contato { get; set; }
         public DbSet<Telefone> Telefone { get; set; }
