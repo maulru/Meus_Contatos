@@ -43,9 +43,18 @@
     </form>
 </div>
 
+<div id="modalContainer"></div>
+
+<!-- Inclui o modal de confirmação de alteração -->
+@Html.Partial("Components/UserChangedModal")
+
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Redireciona para a página Index ao clicar no botão "Voltar"
+            $("#modalContainer").on("click", "#backButton", function () {
+                window.location.href = '@Url.Action("Index", "Home")';
+            });
             $("form").submit(function (event) {
                 event.preventDefault();
 
@@ -56,7 +65,9 @@
                     data: form.serialize(),
                     success: function (response) {
                         if (response.success) {
-                            window.location.href = '@Url.Action("Index", "Home")';
+                            $('#modalContainer').load('@Url.Action("LoadUserChangedModal", "Contato")', function () {
+                                $('#userChangedModal').modal('show');
+                            });
                         } else {
                             alert('Erro: ' + response.message);
                         }
@@ -67,5 +78,6 @@
                 });
             });
         });
+
     </script>
 }

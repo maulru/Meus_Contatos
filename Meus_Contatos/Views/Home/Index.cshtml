@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Core.Entity.Contato>
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Pagina inicial";
 }
 
 <div class="text-center">
@@ -21,6 +21,9 @@
                 <label for="inputDDD" class="form-label">DDD</label>
                 <input type="text" class="form-control" id="inputDDD">
             </div>
+            <div class="col-md-2">
+                <button id="btnFiltrar" class="btn btn-primary" style="margin-top: 32px;">Filtrar</button>
+            </div>
         </div>
     </div>
 
@@ -35,7 +38,7 @@
                 <th scope="col">Ação</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="contatosTableBody">
             @if (Model != null && Model.Any())
             {
                 int index = 1;
@@ -67,7 +70,7 @@
         </tbody>
     </table>
 
-    <p class="fs-3 mt-5">@Model?.Count() contatos.</p>
+    <p class="fs-3 mt-5 total-contatos">@Model?.Count() contatos.</p>
 </div>
 
 @Html.Partial("Components/DeleteContactModal")
@@ -94,6 +97,63 @@
                     }
                 });
             });
+
+            $('#btnFiltrar').click(function () {
+                var regiao = $('#inputRegiao1').val();
+                var ddd = $('#inputDDD').val();
+
+                $.ajax({
+                    url: '@Url.Action("ContatosFiltrados", "Contato")',
+                    type: 'POST',
+                    data: { regiao: regiao, ddd: ddd },
+                    success: function (result) {
+                        if (result.success) {
+                            var contatosTableBody = $('#contatosTableBody');
+                            contatosTableBody.empty();
+
+                            var contatos = result.data;
+                            var totalContatos = result.totalContatos;
+                            if (contatos.length > 0) {
+                                $.each(contatos, function (index, contato) {
+                                    var telefone = contato.telefones[0] || {};
+                                    var ddd = telefone.ddd || {};
+                                    var regiao = ddd.regiao || {};
+                                  
+
+                                    contatosTableBody.append(`
+                                                <tr>
+                                                    <th scope="row" style="padding-top: 15px;">${index + 1}</th>
+                                                    <td style="padding-top: 12px; font-size: 20px;">${contato.nome}</td>
+                                                    <td style="padding-top: 12px; font-size: 20px;">${contato.email}</td>
+                                                    <td style="padding-top: 12px; font-size: 20px;">${telefone.numeroCompleto || ''}</td>
+                                                    <td style="padding-top: 12px; font-size: 20px;">${regiao.nome || ''}</td>
+                                                    <td>
+                                                                 <a href="@Url.Action("EditarContato", "Contato")/${contato.id}" class="btn btn-primary" style="padding-top: 5px;">Alterar</a>
+                                                        <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="${contato.id}">Excluir</a>
+                                                    </td>
+                                                </tr>
+                                            `);
+                                });
+                               
+                            } else {
+                                contatosTableBody.append(`
+                                            <tr>
+                                                <td colspan="6" style="padding-top: 12px; font-size: 20px;">Nenhum contato encontrado.</td>
+                                            </tr>
+                                        `);
+                            }
+                            $('.total-contatos').text(totalContatos + " contatos.");
+                        } else {
+                            alert('Ocorreu um erro ao buscar os contatos.');
+                        }
+                    },
+                    error: function () {
+                        alert('Ocorreu um erro ao buscar os contatos.');
+                    }
+                });
+            });
         });
+
+
     </script>
 }
