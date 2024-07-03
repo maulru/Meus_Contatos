@@ -42,4 +42,39 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+ApplyMigrations(app);
 app.Run();
+
+void ApplyMigrations(WebApplication app)
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate(); // Aplica as migrações
+
+        if (!dbContext.Estado.Any())
+        {
+            var connection = dbContext.Database.GetDbConnection();
+            try
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "EXEC SeedEstados";
+                    command.ExecuteNonQuery();
+
+                    command.CommandText = "EXEC SeedRegioes";
+                    command.ExecuteNonQuery();
+
+                    command.CommandText = "EXEC SeedDDD";
+                    command.ExecuteNonQuery();
+                    
+                }
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+    }
+}
