@@ -1,0 +1,30 @@
+name: DockerBuild
+
+on:
+  push:
+    branches: [ "main" ]
+    
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Realizando o checkout do fonte
+        uses: actions/checkout@v4
+        
+      - name: Realizando o login no docker
+        uses: docker/login-action@v3.2.0
+        with:
+          username: 'trickfx'
+          password: 'dckr_pat_1RVJG0ec5CSr89JRCyVm5xr2D-Y'
+
+      - name: Realizando o build e publicação da imagem
+        uses: docker/build-push-action@v6.2.0
+        with:
+          context: .
+          tags: trickfx/meus-contatos:latest
+          push: true
+        
+
