@@ -21,10 +21,9 @@ jobs:
           password: 'dckr_pat_1RVJG0ec5CSr89JRCyVm5xr2D-Y'
 
       - name: Realizando o build e publicação da imagem
-        uses: docker/build-push-action@v6.2.0
-        with:
-          context: .
-          tags: trickfx/meus-contatos:latest
-          push: true
-        
+        run:
+          docker-compose -f docker-compose.yml build
+          docker-compose -f docker-compose.yml push
 
+      - name: Finalizando a sessão do docker
+        run: docker logout
