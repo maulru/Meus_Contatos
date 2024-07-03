@@ -21,7 +21,7 @@ jobs:
           password: 'dckr_pat_1RVJG0ec5CSr89JRCyVm5xr2D-Y'
 
       - name: Realizando o build e publicação da imagem
-        run:
+        run: |
           docker-compose -f docker-compose.yml build
           docker-compose -f docker-compose.yml push
 
