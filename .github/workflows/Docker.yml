@@ -43,6 +43,13 @@ jobs:
       - name: Adicionando dotnet tools ao PATH
         run: echo "${HOME}/.dotnet/tools" >> $GITHUB_PATH
 
+      - name: Instalando ferramentas de linha de comando do SQL Server
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools unixodbc-dev
+          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+          source ~/.bashrc
+
       - name: Esperando o SQL Server iniciar
         run: sleep 30 # Espera 30 segundos para o SQL Server estar pronto
 
@@ -50,13 +57,13 @@ jobs:
         run: dotnet ef database update --project Infrastructure --connection "Server=localhost,1433;Database=contatos;User id=sa;Password=M@sterk3y;TrustServerCertificate=True"
     
       - name: Populando o banco de dados com os estados do Brasil
-        run: /opt/mssql-tool/bin/sqlcmd -S localhost -U sa -P "M@sterk3y" -d contatos -i Infrastructure/Scripts/SQL/InsertEstados.sql
+        run: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "M@sterk3y" -d contatos -i Infrastructure/Scripts/SQL/InsertEstados.sql
 
       - name: Populando o banco de dados com as regiões do Brasil
-        run: /opt/mssql-tool/bin/sqlcmd -S localhost -U sa -P "M@sterk3y" -d contatos -i Infrastructure/Scripts/SQL/InsertRegioes.sql
+        run: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "M@sterk3y" -d contatos -i Infrastructure/Scripts/SQL/InsertRegioes.sql
 
       - name: Populando o banco de dados com os DDDs
-        run: /opt/mssql-tool/bin/sqlcmd -S localhost -U sa -P "M@sterk3y" -d contatos -i Infrastructure/Scripts/SQL/InsertDDDs.sql               
+        run: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "M@sterk3y" -d contatos -i Infrastructure/Scripts/SQL/InsertDDDs.sql            
 
       - name: Realizando o build da aplicação
         run: dotnet build --no-restore --configuration Release
