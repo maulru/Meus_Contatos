@@ -14,6 +14,26 @@ jobs:
       - name: Realizando o checkout do fonte
         uses: actions/checkout@v4
 
+      - name: Instalando o SDK do .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Realizando a restauração de pacotes Nuget
+        run: dotnet restore
+
+      - name: Realizando o build da aplicação
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Executando testes unitários
+        run: dotnet test --no-build --configuration Release --logger:trx
+
+      - name: Publicando resultados dos testes unitários
+        uses: actions/upload-artifact@v3
+        with:
+          name: TestResults
+          path: '**/*.trx'
+
       - name: Inicializando o buildx do Docker
         uses: docker/setup-buildx-action@v1
         
