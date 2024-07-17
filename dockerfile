@@ -15,7 +15,7 @@ RUN dotnet restore
 COPY . ./
 
 # Compilar e publicar o projeto principal
-RUN dotnet publish Meus_Contatos/Meus_Contatos.csproj -c Debug -o out
+RUN dotnet publish Meus_Contatos/Meus_Contatos.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App
@@ -25,6 +25,5 @@ EXPOSE 8080
 
 # Configurar variáveis de ambiente
 ENV ASPNETCORE_URLS=http://+:8080
-ENV ASPNETCORE_ENVIRONMENT=Development
 
 ENTRYPOINT [ "dotnet", "Meus_Contatos.dll" ]
