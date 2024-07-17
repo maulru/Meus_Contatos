@@ -41,7 +41,7 @@ jobs:
         run: dotnet tool install --global dotnet-ef
 
       - name: Adicionando dotnet tools ao PATH
-        run: echo "::add-path::${HOME}/.dotnet/tools"
+        run: echo "${HOME}/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Esperando o SQL Server iniciar
         run: sleep 30 # Espera 30 segundos para o SQL Server estar pronto
