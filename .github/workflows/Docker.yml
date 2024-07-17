@@ -37,11 +37,17 @@ jobs:
       - name: Realizando a restauração de pacotes Nuget
         run: dotnet restore
 
+      - name: Instalando a ferramenta dotnet-ef
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Adicionando dotnet tools ao PATH
+        run: echo "::add-path::${HOME}/.dotnet/tools"
+
       - name: Esperando o SQL Server iniciar
         run: sleep 30 # Espera 30 segundos para o SQL Server estar pronto
 
       - name: Aplicando a migration do Entity Framework
-        run: dotnet ef database update --project Infrastructure --connection "Server=host.docker.internal,1433;Database=contatos;User id=sa;Password=M@sterk3y;TrustServerCertificate=True"
+        run: dotnet ef database update --project Infrastructure --connection "Server=localhost,1433;Database=contatos;User id=sa;Password=M@sterk3y;TrustServerCertificate=True"
     
       - name: Realizando o build da aplicação
         run: dotnet build --no-restore --configuration Release
