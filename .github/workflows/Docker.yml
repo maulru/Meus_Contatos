@@ -69,6 +69,8 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Executando testes unitários
+        env:
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=contatos;User id=sa;Password=M@sterk3y;TrustServerCertificate=True"
         run: dotnet test --no-build --configuration Release --logger:trx
 
       - name: Publicando resultados dos testes unitários
