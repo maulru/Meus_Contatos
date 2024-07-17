@@ -10,6 +10,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          SA_PASSWORD: "M@sterk3y"
+          ACCEPT_EULA: "Y"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "exit 0" # Isso pode ser substituído por um comando real de health check se necessário
+          --health-interval 10s
+          --health-timeout 10s
+          --health-retries 3
+
     steps:
       - name: Realizando o checkout do fonte
         uses: actions/checkout@v4
@@ -22,6 +37,12 @@ jobs:
       - name: Realizando a restauração de pacotes Nuget
         run: dotnet restore
 
+      - name: Esperando o SQL Server iniciar
+        run: sleep 30 # Espera 30 segundos para o SQL Server estar pronto
+
+      - name: Aplicando a migration do Entity Framework
+        run: dotnet ef database update --project Infrastructure --connection "Server=host.docker.internal,1433;Database=contatos;User id=sa;Password=M@sterk3y;TrustServerCertificate=True"
+    
       - name: Realizando o build da aplicação
         run: dotnet build --no-restore --configuration Release
 
