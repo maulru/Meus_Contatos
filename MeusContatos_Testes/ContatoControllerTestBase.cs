@@ -2,6 +2,6 @@
 {
     public class ContatoControllerTestBase
     {
-        public readonly string _connectionString = "Server=localhost;Database=contatos;Trusted_Connection=True;TrustServerCertificate=True";
+        public readonly string _connectionString = "Server=localhost,1433;Database=contatos;User id=sa;Password=M@sterk3y;TrustServerCertificate=True";
     }
 }
