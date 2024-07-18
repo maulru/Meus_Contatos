@@ -10,6 +10,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    steps:
+      - name: Realizando o checkout do fonte
+        uses: actions/checkout@v4
+
+      - name: Instalando o SDK do .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Realizando a restauração de pacotes Nuget
+        run: dotnet restore
+
+      - name: Realizando o build da aplicação
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Publicando artefatos do build
+        uses: actions/upload-artifact@v3
+        with:
+          name: BuildOutput
+          path: '**/bin/Release/**'
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
 
     services:
       sqlserver:
@@ -34,8 +58,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Realizando a restauração de pacotes Nuget
-        run: dotnet restore
+      - name: Baixando artefatos do build
+        uses: actions/download-artifact@v3
+        with:
+          name: BuildOutput
+          path: './build'
 
       - name: Instalando a ferramenta dotnet-ef
         run: dotnet tool install --global dotnet-ef
@@ -51,7 +78,7 @@ jobs:
           source ~/.bashrc
 
       - name: Esperando o SQL Server iniciar
-        run: sleep 30 # Espera 30 segundos para o SQL Server estar pronto
+        run: sleep 30
 
       - name: Aplicando a migration do Entity Framework
         run: dotnet ef database update --project Infrastructure --connection "Server=localhost,1433;Database=contatos;User id=sa;Password=M@sterk3y;TrustServerCertificate=True"
@@ -63,10 +90,7 @@ jobs:
         run: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "M@sterk3y" -d contatos -i Infrastructure/Scripts/SQL/InsertRegioes.sql
 
       - name: Populando o banco de dados com os DDDs
-        run: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "M@sterk3y" -d contatos -i Infrastructure/Scripts/SQL/InsertDDDs.sql            
-
-      - name: Realizando o build da aplicação
-        run: dotnet build --no-restore --configuration Release
+        run: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "M@sterk3y" -d contatos -i Infrastructure/Scripts/SQL/InsertDDDs.sql
 
       - name: Executando testes unitários
         env:
@@ -78,6 +102,14 @@ jobs:
         with:
           name: TestResults
           path: '**/*.trx'
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Realizando o checkout do fonte
+        uses: actions/checkout@v4
 
       - name: Inicializando o buildx do Docker
         uses: docker/setup-buildx-action@v1
