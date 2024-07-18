@@ -68,6 +68,7 @@ jobs:
       - name: Verificando diretório
         run: |
           cd ./build
+          cd ./MeusContatos_Testes
           ls
       
       - name: Instalando a ferramenta dotnet-ef
