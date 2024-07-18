@@ -66,7 +66,9 @@ jobs:
 
 
       - name: Verificando diretório
-        run: ls
+        run: |
+          cd ./build
+          ls
       
       - name: Instalando a ferramenta dotnet-ef
         run: dotnet tool install --global dotnet-ef
