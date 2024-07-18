@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  Build_da_Aplicacao:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,9 +31,9 @@ jobs:
           name: BuildOutput
           path: '**/bin/Release/**'
 
-  test:
+  Testes_Unitarios_Integracao:
     runs-on: ubuntu-latest
-    needs: build
+    needs: Build_da_Aplicacao
 
     services:
       sqlserver:
@@ -95,7 +95,7 @@ jobs:
       - name: Executando testes unitários
         env:
           ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=contatos;User id=sa;Password=M@sterk3y;TrustServerCertificate=True"
-        run: dotnet test --no-build --configuration Release --logger:trx
+        run: dotnet test ./build --no-build --configuration Release --logger:trx
 
       - name: Publicando resultados dos testes unitários
         uses: actions/upload-artifact@v3
@@ -105,7 +105,7 @@ jobs:
 
   docker:
     runs-on: ubuntu-latest
-    needs: test
+    needs: Testes_Unitarios_Integracao
 
     steps:
       - name: Realizando o checkout do fonte
