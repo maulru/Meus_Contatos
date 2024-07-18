@@ -64,6 +64,10 @@ jobs:
           name: BuildOutput
           path: './build'
 
+
+      - name: Verificando diretório
+        run: ls
+      
       - name: Instalando a ferramenta dotnet-ef
         run: dotnet tool install --global dotnet-ef
 
