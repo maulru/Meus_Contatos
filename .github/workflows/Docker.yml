@@ -70,6 +70,7 @@ jobs:
           cd ./build
           cd ./MeusContatos_Testes
           cd ./bin
+          cd ./Release
           ls
       
       - name: Instalando a ferramenta dotnet-ef
