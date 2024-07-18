@@ -69,6 +69,7 @@ jobs:
         run: |
           cd ./build
           cd ./MeusContatos_Testes
+          cd ./bin
           ls
       
       - name: Instalando a ferramenta dotnet-ef
