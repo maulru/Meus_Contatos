@@ -63,16 +63,7 @@ jobs:
         with:
           name: BuildOutput
           path: './build'
-
-
-      - name: Verificando diretório
-        run: |
-          cd ./build
-          cd ./MeusContatos_Testes
-          cd ./bin
-          cd ./Release
-          ls
-      
+     
       - name: Instalando a ferramenta dotnet-ef
         run: dotnet tool install --global dotnet-ef
 
@@ -112,7 +103,7 @@ jobs:
           name: TestResults
           path: '**/*.trx'
 
-  docker:
+  Build_Docker:
     runs-on: ubuntu-latest
     needs: Testes_Unitarios_Integracao
 
