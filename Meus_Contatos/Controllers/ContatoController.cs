@@ -145,7 +145,7 @@ namespace Meus_Contatos.Controllers
         /// <param name="input"></param>
         /// <returns></returns>
         [HttpPost]
-        public async JsonResult EditarContato(ContatoInput input)
+        public JsonResult EditarContato(ContatoInput input)
         {
             using (RequestDurationEditarContato.NewTimer())
             {
@@ -185,7 +185,7 @@ namespace Meus_Contatos.Controllers
                         _telefoneRepository.Cadastrar(telefone);
                     }
                     contatosAlterados.Inc();
-                    await Task.Delay(1000);
+                    Thread.Sleep(1000);
                     return Json(new { success = true });
                 }
                 catch (Exception ex)
