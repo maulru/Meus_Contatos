@@ -4,14 +4,42 @@ using Core.Repository;
 using Infrastructure.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Prometheus;
 
 namespace Meus_Contatos.Controllers
 {
-    public class ContatoController : Controller
+    public class ContatoController : Controller, IHealthCheck
     {
         private readonly IContatoRepository _contatoRepository;
         private readonly ITelefoneRepository _telefoneRepository;
         private readonly ApplicationDbContext _context;
+        private Counter contatosAdicionados = Metrics.CreateCounter("contatos_adicionados", "Contatos Adicionados");
+        private Counter contatosAlterados = Metrics.CreateCounter("contatos_alterados", "Contatos Alterados");
+        private Counter buscasComFiltro = Metrics.CreateCounter("buscas_filtro", "Buscas com Filtro");
+        private Counter errosAdicionar = Metrics.CreateCounter("erros_adicionar_contato", "Erros ao adicionar contato");
+        private Counter errosAlterar = Metrics.CreateCounter("erros_alterar_contato", "Erros ao alterar contato");
+
+        private static readonly Histogram RequestDurationAdicionarContato = Metrics
+    .CreateHistogram("request_duration_add", "Duração das requisições para adicionarContatos em segundos",
+     new HistogramConfiguration
+     {
+         Buckets = Histogram.LinearBuckets(start: 0.1, width: 0.1, count: 10)
+     });
+
+        private static readonly Histogram RequestDurationEditarContato = Metrics
+    .CreateHistogram("request_duration_alterar", "Duração das requisições para editarContatos em segundos",
+     new HistogramConfiguration
+     {
+         Buckets = Histogram.LinearBuckets(start: 0.1, width: 0.1, count: 10)
+     });
+
+        private static readonly Histogram RequestDurationBuscaFiltro = Metrics
+ .CreateHistogram("request_duration_busca_filtro", "Duração das requisições para buscaComFiltro em segundos",
+  new HistogramConfiguration
+  {
+      Buckets = Histogram.LinearBuckets(start: 0.1, width: 0.1, count: 10)
+  });
 
         /// <summary>
         /// Injeção de dependência
@@ -43,41 +71,45 @@ namespace Meus_Contatos.Controllers
         [HttpPost]
         public JsonResult AdicionarContato(ContatoInput input)
         {
-            try
+            using (RequestDurationAdicionarContato.NewTimer())
             {
-
-                // Obtenção do DDD a partir do código fornecido
-                var ddd = _context.DDD.FirstOrDefault(d => d.Codigo == input.NumeroDDD);
-
-                if (ddd == null)
+                try
                 {
-                    return Json(new { success = false, message = "DDD inválido." });
+
+                    // Obtenção do DDD a partir do código fornecido
+                    var ddd = _context.DDD.FirstOrDefault(d => d.Codigo == input.NumeroDDD);
+
+                    if (ddd == null)
+                    {
+                        return Json(new { success = false, message = "DDD inválido." });
+                    }
+
+                    // Criação do contato
+                    var contato = new Contato()
+                    {
+                        Nome = input.Nome,
+                        Email = input.Email
+                    };
+
+                    _contatoRepository.Cadastrar(contato); // Cadastro do contato
+
+                    // Criação do telefone
+                    var telefone = new Telefone()
+                    {
+                        ContatoId = contato.Id,
+                        DDDId = ddd.Id,
+                        NumeroTelefone = input.NumeroTelefone
+                    };
+
+                    _telefoneRepository.Cadastrar(telefone); // Cadastro do telefone
+                    contatosAdicionados.Inc();
+                    return Json(new { success = true });
                 }
-
-                // Criação do contato
-                var contato = new Contato()
+                catch (Exception ex)
                 {
-                    Nome = input.Nome,
-                    Email = input.Email
-                };
-
-                _contatoRepository.Cadastrar(contato); // Cadastro do contato
-
-                // Criação do telefone
-                var telefone = new Telefone()
-                {
-                    ContatoId = contato.Id,
-                    DDDId = ddd.Id,
-                    NumeroTelefone = input.NumeroTelefone
-                };
-
-                _telefoneRepository.Cadastrar(telefone); // Cadastro do telefone
-
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
+                    errosAdicionar.Inc();
+                    return Json(new { success = false, message = ex.Message });
+                }
             }
         }
 
@@ -115,47 +147,52 @@ namespace Meus_Contatos.Controllers
         [HttpPost]
         public JsonResult EditarContato(ContatoInput input)
         {
-            try
+            using (RequestDurationEditarContato.NewTimer())
             {
-                var contato = _contatoRepository.ObterPorId(input.Id);
-                if (contato == null)
+                try
                 {
-                    return Json(new { success = false, message = "Contato não encontrado." });
-                }
-
-                var ddd = _context.DDD.FirstOrDefault(d => d.Codigo == input.NumeroDDD);
-                if (ddd == null)
-                {
-                    return Json(new { success = false, message = "DDD inválido." });
-                }
-
-                contato.Nome = input.Nome;
-                contato.Email = input.Email;
-                _contatoRepository.Alterar(contato);
-
-                var telefone = contato.Telefones.FirstOrDefault();
-                if (telefone != null)
-                {
-                    telefone.DDDId = ddd.Id;
-                    telefone.NumeroTelefone = input.NumeroTelefone;
-                    _telefoneRepository.Alterar(telefone);
-                }
-                else
-                {
-                    telefone = new Telefone()
+                    var contato = _contatoRepository.ObterPorId(input.Id);
+                    if (contato == null)
                     {
-                        ContatoId = contato.Id,
-                        DDDId = ddd.Id,
-                        NumeroTelefone = input.NumeroTelefone
-                    };
-                    _telefoneRepository.Cadastrar(telefone);
-                }
+                        return Json(new { success = false, message = "Contato não encontrado." });
+                    }
 
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
+                    var ddd = _context.DDD.FirstOrDefault(d => d.Codigo == input.NumeroDDD);
+                    if (ddd == null)
+                    {
+                        return Json(new { success = false, message = "DDD inválido." });
+                    }
+
+                    contato.Nome = input.Nome;
+                    contato.Email = input.Email;
+                    _contatoRepository.Alterar(contato);
+
+                    var telefone = contato.Telefones.FirstOrDefault();
+                    if (telefone != null)
+                    {
+                        telefone.DDDId = ddd.Id;
+                        telefone.NumeroTelefone = input.NumeroTelefone;
+                        _telefoneRepository.Alterar(telefone);
+                    }
+                    else
+                    {
+                        telefone = new Telefone()
+                        {
+                            ContatoId = contato.Id,
+                            DDDId = ddd.Id,
+                            NumeroTelefone = input.NumeroTelefone
+                        };
+                        _telefoneRepository.Cadastrar(telefone);
+                    }
+                    contatosAlterados.Inc();
+                    Thread.Sleep(1000);
+                    return Json(new { success = true });
+                }
+                catch (Exception ex)
+                {
+                    errosAlterar.Inc();
+                    return Json(new { success = false, message = ex.Message });
+                }
             }
         }
 
@@ -168,21 +205,24 @@ namespace Meus_Contatos.Controllers
         [HttpPost]
         public JsonResult ContatosFiltrados(string regiao, string ddd)
         {
-            var query = _context.Contato.Include(c => c.Telefones).ThenInclude(t => t.DDD).ThenInclude(r=> r.Regiao).AsQueryable();
-
-            if (!string.IsNullOrEmpty(regiao))
+            using (RequestDurationBuscaFiltro.NewTimer())
             {
-                query = query.Where(c => c.Telefones.Any(t => t.DDD.Regiao.Nome.Contains(regiao)));
+                var query = _context.Contato.Include(c => c.Telefones).ThenInclude(t => t.DDD).ThenInclude(r => r.Regiao).AsQueryable();
+
+                if (!string.IsNullOrEmpty(regiao))
+                {
+                    query = query.Where(c => c.Telefones.Any(t => t.DDD.Regiao.Nome.Contains(regiao)));
+                }
+
+                if (!string.IsNullOrEmpty(ddd))
+                {
+                    query = query.Where(c => c.Telefones.Any(t => t.DDD.Codigo == ddd));
+                }
+
+                var contatos = query.ToList();
+                buscasComFiltro.Inc();
+                return Json(new { success = true, data = contatos, totalContatos = contatos.Count });
             }
-
-            if (!string.IsNullOrEmpty(ddd))
-            {
-                query = query.Where(c => c.Telefones.Any(t => t.DDD.Codigo == ddd));
-            }
-
-            var contatos = query.ToList();
-
-            return Json(new { success = true, data = contatos, totalContatos = contatos.Count });
         }
 
         /// <summary>
@@ -203,5 +243,9 @@ namespace Meus_Contatos.Controllers
             return PartialView("Components/UserChangedModal");
         }
 
+        public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(HealthCheckResult.Healthy());
+        }
     }
 }

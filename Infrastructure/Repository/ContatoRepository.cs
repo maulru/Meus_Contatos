@@ -10,6 +10,10 @@ namespace Infrastructure.Repository
         {
         }
 
+        /// <summary>
+        /// Método que retorna todos os Contatos
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<Contato> ObterTodos()
         {
             return _context.Contato
@@ -19,16 +23,12 @@ namespace Infrastructure.Repository
                 .ToList();
         }
 
-        public Contato ObterInformacoesPorId(int id)
-        {
-            var contato = _context.Contato
-                .Include(c => c.Telefones)
-                .FirstOrDefault(c => c.Id == id)
-                ?? throw new Exception("Contato não localizado");
-
-            return contato;
-        }
-
+        /// <summary>
+        /// Retorna Contato Por ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public Contato ObterPorId(int id)
         {
             return _context.Contato
@@ -49,7 +49,11 @@ namespace Infrastructure.Repository
             return contato;
         }
 
-
+        /// <summary>
+        /// Busca contatos por DDD
+        /// </summary>
+        /// <param name="ddd"></param>
+        /// <returns></returns>
         public IEnumerable<Contato> BuscarContatosPorDDD(string ddd)
         {
             return _context.Contato
@@ -59,6 +63,11 @@ namespace Infrastructure.Repository
                 .ToList();
         }
 
+        /// <summary>
+        /// Busca contatos por Região
+        /// </summary>
+        /// <param name="regiao"></param>
+        /// <returns></returns>
         public IEnumerable<Contato> BuscarContatosPorRegiao(string regiao)
         {
             return _context.Contato
