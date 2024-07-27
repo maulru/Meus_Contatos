@@ -5,6 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>223c31b8-f089-4385-b5d6-8c5648802f1e</UserSecretsId>
+		<PackageProjectUrl></PackageProjectUrl>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -24,6 +25,12 @@
 	  <None Remove="Data\**" />
 	  <None Remove="Profiles\**" />
 	  <None Remove="Services\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="prometheus-net" Version="8.2.1" />
+	  <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
+	  <PackageReference Include="prometheus-net.AspNetCore.HealthChecks" Version="8.2.1" />
 	</ItemGroup>
 
 	<ItemGroup>

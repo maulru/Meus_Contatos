@@ -1,12 +1,18 @@
 using Core.Repository;
 using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();
+}
 
 var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
@@ -37,6 +43,17 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseHttpMetrics(options =>
+{
+    options.AddCustomLabel("host", context => context.Request.Host.Host);
+});
+app.UseMetricServer();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapMetrics(); 
+});
 
 app.MapControllerRoute(
     name: "default",
