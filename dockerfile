@@ -22,24 +22,8 @@ RUN dotnet publish Meus_Contatos/Meus_Contatos.csproj -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App
 
-# Instalar o Zabbix Agent, supervisord e procps
-RUN apt-get update && \
-    apt-get install -y zabbix-agent supervisor procps && \
-    rm -rf /var/lib/apt/lists/*
-
-# Criar diretório para os logs do Zabbix Agent e ajustar permissões
-RUN mkdir -p /var/log/zabbix && \
-    chown -R zabbix:zabbix /var/log/zabbix && \
-    chmod -R 755 /var/log/zabbix
-
 # Copiar os arquivos da etapa de build
 COPY --from=build-env /App/out .
-
-# Copiar o arquivo de configuração do Zabbix Agent
-COPY zabbix_agentd.conf /etc/zabbix/zabbix_agentd.conf
-
-# Copiar o arquivo de configuração do supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Configurar variáveis de ambiente
 ENV ASPNETCORE_URLS=http://+:8080
@@ -48,4 +32,4 @@ ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
 # Iniciar o supervisord
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+ENTRYPOINT [ "dotnet", "Meus_Contatos.dll" ]
