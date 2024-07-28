@@ -1,4 +1,5 @@
 using Core.Repository;
+using Infrastructure;
 using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
@@ -12,7 +13,10 @@ builder.Services.AddControllersWithViews();
 void ConfigureServices(IServiceCollection services)
 {
     services.AddControllers();
+    services.AddHostedService<MetricsService>();
 }
+
+builder.Services.AddHostedService<MetricsService>();
 
 var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
@@ -35,6 +39,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
