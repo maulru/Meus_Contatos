@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.Hosting;
-using System.Threading;
-using System.Threading.Tasks;
 using Prometheus;
-using Microsoft.VisualBasic;
+
 
 namespace Infrastructure
 {
@@ -14,20 +12,23 @@ namespace Infrastructure
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             var process = Process.GetCurrentProcess();
+            var lastCpuTime = TimeSpan.Zero;
+            var lastSampleTime = DateTime.UtcNow;
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                // Obter uso de CPU
-                cpuCounter.NextValue();
-                await Task.Delay(1000, stoppingToken); // Esperar um segundo para obter uma leitura precisa
-                var cpuUsage = cpuCounter.NextValue();
+                var currentCpuTime = process.TotalProcessorTime;
+                var currentTime = DateTime.UtcNow;
+                var elapsedCpuTime = (currentCpuTime - lastCpuTime).TotalMilliseconds;
+                var elapsedTime = (currentTime - lastSampleTime).TotalMilliseconds;
+                var cpuUsage = (elapsedCpuTime / (Environment.ProcessorCount * elapsedTime)) * 100;
 
-                // Obter uso de memória
-                var usedMemory = process.WorkingSet64 / (1024 * 1024);
+                lastCpuTime = currentCpuTime;
+                lastSampleTime = currentTime;
 
-                // Atualizar métricas
+                var usedMemory = process.WorkingSet64 /(1024 * 1024);
+
                 _cpuUsageGauge.Set(cpuUsage);
                 _memoryUsageGauge.Set(usedMemory);
 
